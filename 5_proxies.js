@@ -66,7 +66,7 @@ const createChart = async () => {
 		dimensions.boundedHeight =
 			dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
 
-		var nodePadding = 0;
+		var nodePadding = 5;
 
 		//////////////////////////// svg ///////////////////////////////////
 
