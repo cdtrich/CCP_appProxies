@@ -128,8 +128,8 @@ const createChart = async () => {
 
 			dots
 				.style("fill", (d) => cScale(cAccessor(d)))
-				.style("fill-opacity", 0.1)
-				.attr("stroke", (d) => cScale(cAccessor(d)));
+				.style("fill-opacity", 0.3);
+			// .attr("stroke", (d) => cScale(cAccessor(d)));
 
 			const label = bounds
 				.selectAll(".label")
@@ -152,7 +152,7 @@ const createChart = async () => {
 					.style("top", mouseY + "px")
 					.html("<u>" + d.title + "</u>" + "<br>" + d.value);
 				// smoother change in opacity
-				dots.transition().style("opacity", 0.25);
+				dots.transition().style("opacity", 0.3);
 			});
 
 			dots.on("mousemove", (d, i) => {
