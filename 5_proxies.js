@@ -66,7 +66,7 @@ const createChart = async () => {
 		dimensions.boundedHeight =
 			dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
 
-		var nodePadding = 5;
+		var nodePadding = 50;
 
 		//////////////////////////// svg ///////////////////////////////////
 
@@ -180,7 +180,7 @@ const createChart = async () => {
 						.x(dimensions.boundedWidth / 2)
 						.y(dimensions.boundedHeight / 2)
 				)
-				.force("charge", d3.forceManyBody().strength(0.1))
+				.force("charge", d3.forceManyBody().strength(0))
 				.force(
 					"collide",
 					d3
@@ -194,11 +194,11 @@ const createChart = async () => {
 			simulation.nodes(data).on("tick", (d) => {
 				// dot x and y pos
 				dots.attr("transform", function (d) {
-					return "translate(" + d.x + ", " + d.y + ")";
+					return "translate(" + d.x + ", " + dimensions.boundedHeight + ")";
 				});
 				// label x and y pos
 				label.attr("transform", function (d) {
-					return "translate(" + d.x + ", " + d.y + ")";
+					return "translate(" + d.x + ", " + dimensions.boundedHeight + ")";
 				});
 			});
 		};
