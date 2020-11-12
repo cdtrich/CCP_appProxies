@@ -16,29 +16,9 @@ const createChart = async () => {
 	//////////////////////////// data /////////////////////////////////////////
 
 	let data = [
-		{ title: "Cyber espionage", val: 1000, valLab: ">1,000", desc: "" },
-		{ title: "Military cyber operations", val: 100, valLab: "<100", desc: "" },
-		{
-			title: "Cyber operations against public trust",
-			val: 5,
-			valLab: "5",
-			desc:
-				"targeting of international organizations, Internet infrastructure and trust(ed) services"
-		},
-		{
-			title: "Effect-creating cyber operations",
-			val: 23,
-			valLab: "23",
-			desc:
-				"State-authorized defacements, DDoS, doxing, data destruction and sabotage"
-		},
-		{
-			title: "Domestic cyber conflict",
-			val: 300,
-			valLab: ">300",
-			desc:
-				"internet shutdowns, opposition targeting, systemic violations of human rights"
-		}
+		{ title: "proxy", val: 7 },
+		{ title: "state", val: 6 },
+		{ title: "state and proxy", val: 7 }
 	];
 
 	//////////////////////////// accessors ////////////////////////////////////
@@ -46,13 +26,11 @@ const createChart = async () => {
 	const col = "title";
 	// const xAccessor = (d) => d.startYear;
 	const cAccessor = (d) => d[col];
-	const xAccessor = (d) => d.val;
-	const yAccessor = (d) => d.val;
 	const rAccessor = (d) => d.val;
 
 	//////////////////////////// svg ///////////////////////////////////
 
-	const wrapper = d3.select("#appTypes").append("svg");
+	const wrapper = d3.select("#appProxies").append("svg");
 
 	// if element already exists, return selection
 	// if it doesn't exist, create it and give it class
@@ -88,7 +66,7 @@ const createChart = async () => {
 		dimensions.boundedHeight =
 			dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
 
-		var nodePadding = 5;
+		var nodePadding = 0;
 
 		//////////////////////////// svg ///////////////////////////////////
 
@@ -105,41 +83,24 @@ const createChart = async () => {
 
 		const colorsType = [
 			// "#113655",
-			"#f28c00"
+			"#f28c00",
 			// "#3f8ca5"
-			// "#fab85f",
+			"#fab85f",
 			// "#99d4e3",
-			// "#fed061"
+			"#fed061"
 		];
 
 		//////////////////////////// scales ///////////////////////////////////////
 
-		const xScale = d3
-			.scaleLinear()
-			.domain(d3.extent(data, xAccessor))
-			.range([0, dimensions.boundedWidth])
-			.nice();
-
-		const yScale = d3
-			.scaleLinear()
-			.domain(d3.extent(data, yAccessor))
-			.range([dimensions.boundedHeight, 0])
-			.nice();
-
 		const rScale = d3
 			.scaleSqrt()
-			.domain(d3.extent(data, rAccessor))
-			.range([10, dimensions.boundedHeight / 4]);
+			// .domain(d3.extent(data, rAccessor))
+			.domain([0, d3.max(data, rAccessor)])
+			.range([10, dimensions.boundedHeight / 5]);
 
 		const cScale = d3
 			.scaleOrdinal()
-			.domain([
-				"Cyber espionage",
-				"Military cyber operations",
-				"Cyber operations against public trust",
-				"Effect-creating cyber operations",
-				"Domestic cyber conflict"
-			])
+			.domain(["proxy", "state", "state and proxy"])
 			.range(colorsType);
 
 		///////////////////////////////////////////////////////////////////////////
@@ -147,7 +108,11 @@ const createChart = async () => {
 		///////////////////////////////////////////////////////////////////////////
 
 		const dots = (data) => {
-			const tooltip = selectOrCreate("div", "tooltip", d3.select("#appTypes"));
+			const tooltip = selectOrCreate(
+				"div",
+				"tooltip",
+				d3.select("#appProxies")
+			);
 
 			const dots = bounds
 				.selectAll(".nodes")
@@ -196,18 +161,7 @@ const createChart = async () => {
 				d3.select(".tooltip")
 					.style("left", mouseX + "px")
 					.style("top", mouseY + "px")
-					.html(
-						"<b>" +
-							d.title +
-							"</b>" +
-							"<br>" +
-							d.valLab +
-							" cases" +
-							"<br>" +
-							"<i>" +
-							d.desc +
-							"</i>"
-					);
+					.html("<b>" + d.title + "</b>" + "<br>" + d.val + " cases");
 			});
 
 			dots.on("mouseleave", function (d) {
