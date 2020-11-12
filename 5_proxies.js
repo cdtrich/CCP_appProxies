@@ -52,7 +52,7 @@ const createChart = async () => {
 
 		let dimensions = {
 			width: size,
-			height: size * 0.5,
+			height: size * 0.33,
 			margin: {
 				top: 15,
 				right: 15,
@@ -96,7 +96,7 @@ const createChart = async () => {
 			.scaleSqrt()
 			// .domain(d3.extent(data, rAccessor))
 			.domain([0, d3.max(data, rAccessor)])
-			.range([10, dimensions.boundedHeight / 5]);
+			.range([10, dimensions.boundedHeight / 3]);
 
 		const cScale = d3
 			.scaleOrdinal()
@@ -194,11 +194,11 @@ const createChart = async () => {
 			simulation.nodes(data).on("tick", (d) => {
 				// dot x and y pos
 				dots.attr("transform", function (d) {
-					return "translate(" + d.x + ", " + dimensions.boundedHeight + ")";
+					return "translate(" + d.x + ", " + dimensions.boundedHeight / 2 + ")";
 				});
 				// label x and y pos
 				label.attr("transform", function (d) {
-					return "translate(" + d.x + ", " + dimensions.boundedHeight + ")";
+					return "translate(" + d.x + ", " + dimensions.boundedHeight / 2 + ")";
 				});
 			});
 		};
