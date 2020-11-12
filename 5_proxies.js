@@ -3,13 +3,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 // import * as d3 from "d3";
-// import { easeBounceIn, easeCubic, easeExp, easePoly } from "d3";
 // import { csv } from "d3-fetch";
 // import _ from "lodash";
-
-// import mustache
-// https://github.com/janl/mustache.js
-// const Mustache = require("mustache");
 
 console.clear();
 
@@ -18,27 +13,46 @@ console.clear();
 ///////////////////////////////////////////////////////////////////////////
 
 const createChart = async () => {
-	// const url = "https://eucyberdirect.eu/wp-content/uploads/2020/11/cpi_cyber_operations_database_2020_version-1.0.csv";
-	const url = "./data/CPI_Cyber_Operations_Database_2020_Version 1.0.csv";
-
 	//////////////////////////// data /////////////////////////////////////////
 
 	let data = [
-		{ title: "proxy", value: 7 },
-		{ title: "state", value: 6 },
-		{ title: "state and tproxy", value: 7 }
+		{ title: "Cyber espionage", val: 1000, valLab: ">1,000", desc: "" },
+		{ title: "Military cyber operations", val: 100, valLab: "<100", desc: "" },
+		{
+			title: "Cyber operations against public trust",
+			val: 5,
+			valLab: "5",
+			desc:
+				"targeting of international organizations, Internet infrastructure and trust(ed) services"
+		},
+		{
+			title: "Effect-creating cyber operations",
+			val: 23,
+			valLab: "23",
+			desc:
+				"State-authorized defacements, DDoS, doxing, data destruction and sabotage"
+		},
+		{
+			title: "Domestic cyber conflict",
+			val: 300,
+			valLab: ">300",
+			desc:
+				"internet shutdowns, opposition targeting, systemic violations of human rights"
+		}
 	];
-	// console.log(data);
 
 	//////////////////////////// accessors ////////////////////////////////////
 
 	const col = "title";
-	const xAccessor = (d) => d.value;
+	// const xAccessor = (d) => d.startYear;
 	const cAccessor = (d) => d[col];
+	const xAccessor = (d) => d.val;
+	const yAccessor = (d) => d.val;
+	const rAccessor = (d) => d.val;
 
-	//////////////////////////// Set up svg ///////////////////////////////////
+	//////////////////////////// svg ///////////////////////////////////
 
-	const wrapper = d3.select("#appProcesses").append("svg");
+	const wrapper = d3.select("#appTypes").append("svg");
 
 	// if element already exists, return selection
 	// if it doesn't exist, create it and give it class
@@ -49,17 +63,15 @@ const createChart = async () => {
 	};
 
 	///////////////////////////////////////////////////////////////////////////
-	//////////////////////////// update ///////////////////////////////////////
+	//////////////////////////// update function /////////////////////////////
 	///////////////////////////////////////////////////////////////////////////
-
 	const update = () => {
 		//////////////////////////// sizes ///////////////////////////////////
-		// const size = d3.min([window.innerWidth * 0.99, window.innerHeight * 0.99]);
-		const size = 1100;
+		const size = d3.min([window.innerWidth * 0.99, window.innerHeight * 0.99]);
 
 		let dimensions = {
 			width: size,
-			height: size * 0.5,
+			height: size,
 			margin: {
 				top: 15,
 				right: 15,
@@ -68,12 +80,12 @@ const createChart = async () => {
 			}
 		};
 
-		const radius = dimensions.width / 70;
-
 		dimensions.boundedWidth =
 			dimensions.width - dimensions.margin.left - dimensions.margin.right;
 		dimensions.boundedHeight =
 			dimensions.height - dimensions.margin.top - dimensions.margin.bottom;
+
+		var nodePadding = 5;
 
 		//////////////////////////// svg ///////////////////////////////////
 
@@ -86,120 +98,80 @@ const createChart = async () => {
 			`translate(${dimensions.margin.left}px,${dimensions.margin.top}px)`
 		);
 
-		// template
-		var template = d3.select("#template").html();
-		Mustache.parse(template);
-
-		//////////////////////////// data /////////////////////////////////////////
-
-		// pretty dates
-		var formatTime = d3.timeFormat("%d %b %Y");
-		data.forEach((d) => {
-			d.reportLabel = formatTime(d.report);
-		});
-
-		// fixing incomplete data
-		data.forEach((d) => {
-			switch (d.name) {
-				case "Stuxnet":
-					d.startYear = 2010;
-					break;
-				case "DDoS on US Banks":
-					d.reportLabel = "2012";
-					break;
-				default:
-			}
-		});
-		// console.log(data)
-
 		//////////////////////////// colors ///////////////////////////////////////
 
 		const colorsType = [
-			"#113655",
-			"#f28c00",
-			"#3f8ca5",
-			"#fab85f",
-			"#99d4e3",
-			"#fed061"
+			// "#113655",
+			"#f28c00"
+			// "#3f8ca5"
+			// "#fab85f",
+			// "#99d4e3",
+			// "#fed061"
 		];
-
-		//////////////////////////// col var ///////////////////////////////////////
-
-		var dataType = _.chain(data)
-			.map((d) => d[col])
-			.uniq()
-			.value();
-		// console.log(dataType);
 
 		//////////////////////////// scales ///////////////////////////////////////
 
 		const xScale = d3
 			.scaleLinear()
 			.domain(d3.extent(data, xAccessor))
-			.range([0, dimensions.boundedWidth]);
+			.range([0, dimensions.boundedWidth])
+			.nice();
 
-		const cScale = d3.scaleOrdinal().domain(dataType).range(colorsType);
+		const yScale = d3
+			.scaleLinear()
+			.domain(d3.extent(data, yAccessor))
+			.range([dimensions.boundedHeight, 0])
+			.nice();
 
-		var simulation = d3
-			.forceSimulation(data)
-			.force(
-				"x",
-				d3
-					.forceX(function (d) {
-						return xScale(xAccessor(d));
-					})
-					.strength(1)
-			)
-			.force("y", d3.forceY(dimensions.boundedHeight).strength(0.05))
-			.force("collide", d3.forceCollide(radius * 2))
-			.stop();
+		const rScale = d3
+			.scaleSqrt()
+			.domain(d3.extent(data, rAccessor))
+			.range([10, dimensions.boundedHeight / 4]);
 
-		for (var i = 0; i < 10; ++i) simulation.tick();
+		const cScale = d3
+			.scaleOrdinal()
+			.domain([
+				"Cyber espionage",
+				"Military cyber operations",
+				"Cyber operations against public trust",
+				"Effect-creating cyber operations",
+				"Domestic cyber conflict"
+			])
+			.range(colorsType);
 
-		//////////////////////////// axes /////////////////////////////////////////
-
-		var formatAxis = d3.format(".4r");
-
-		const xAxisGenerator = d3
-			.axisBottom()
-			.scale(xScale)
-			.tickFormat(formatAxis)
-			.ticks();
-		const xAxis = selectOrCreate("g", "xAxis", bounds)
-			.call(xAxisGenerator)
-			.style("transform", `translate(0,${dimensions.boundedHeight}px)`);
-
+		///////////////////////////////////////////////////////////////////////////
 		//////////////////////////// plot /////////////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////
 
-		// starting position
 		const dots = (data) => {
-			const tooltip = selectOrCreate(
-				"div",
-				"tooltip",
-				d3.select("#appGeneral")
-			);
+			const tooltip = selectOrCreate("div", "tooltip", d3.select("#appTypes"));
 
 			const dots = bounds
-				.selectAll(".dots")
+				.selectAll(".nodes")
 				.data(data)
 				.enter()
-				// cell
-				.append("circle")
-				.attr("class", "dots")
-				.attr("r", 0)
-				.attr("cx", (d) => d.x)
-				.attr("cy", 0)
-				.style("opacity", 0);
+				.append("g")
+				.classed("nodes", true);
 
-			// animated drop
 			dots
-				.transition()
-				.duration((d, i) => i * 50)
-				.attr("r", radius)
-				.attr("cx", (d) => xScale(xAccessor(d)))
-				.attr("cy", (d) => d.y)
-				.attr("fill", (d) => cScale(cAccessor(d)))
+				.append("circle")
+				.attr("r", (d) => rScale(rAccessor(d)))
 				.style("opacity", 1);
+
+			dots
+				.style("fill", (d) => cScale(cAccessor(d)))
+				.style("fill-opacity", 0.1)
+				.attr("stroke", (d) => cScale(cAccessor(d)));
+
+			const label = bounds
+				.selectAll(".label")
+				.data(data)
+				.enter()
+				.append("text")
+				.classed("label", true)
+				.attr("x", (d) => d.x)
+				.attr("y", (d) => d.y)
+				.text((d) => d.title);
 
 			// tooltip
 			dots.on("mouseover", (event, d) => {
@@ -210,9 +182,9 @@ const createChart = async () => {
 					.style("opacity", 1)
 					.style("left", mouseX + "px")
 					.style("top", mouseY + "px")
-					.text(d.name);
+					.html("<u>" + d.title + "</u>" + "<br>" + d.value);
 				// smoother change in opacity
-				dots.transition().style("opacity", 0.5);
+				dots.transition().style("opacity", 0.25);
 			});
 
 			dots.on("mousemove", (d, i) => {
@@ -221,7 +193,18 @@ const createChart = async () => {
 				d3.select(".tooltip")
 					.style("left", mouseX + "px")
 					.style("top", mouseY + "px")
-					.text(d.name);
+					.html(
+						"<b>" +
+							d.title +
+							"</b>" +
+							"<br>" +
+							d.valLab +
+							" cases" +
+							"<br>" +
+							"<i>" +
+							d.desc +
+							"</i>"
+					);
 			});
 
 			dots.on("mouseleave", function (d) {
@@ -229,61 +212,38 @@ const createChart = async () => {
 				dots.transition().style("opacity", 1);
 			});
 
-			// overlay
-			dots.on("click", on);
+			//////////////////////////// force ///////////////////////////////////////
 
-			///////////////////////////////////////////////////////////////////////////
-			//////////////////////////// details //////////////////////////////////////
-			///////////////////////////////////////////////////////////////////////////
+			var simulation = d3
+				.forceSimulation()
+				.force(
+					"center",
+					d3
+						.forceCenter()
+						.x(dimensions.boundedWidth / 2)
+						.y(dimensions.boundedHeight / 2)
+				)
+				.force("charge", d3.forceManyBody().strength(0.1))
+				.force(
+					"collide",
+					d3
+						.forceCollide()
+						.strength(0.05)
+						.radius((d) => rScale(rAccessor(d) + nodePadding))
+						.iterations(1)
+				);
+			// .stop();
 
-			var dataL = 0;
-			var legendOffset = (dimensions.boundedWidth - 100) / dataType.length;
-
-			var legend = selectOrCreate("g", "legend", bounds)
-				.attr("width", dimensions.boundedWidth)
-				.attr("height", radius * 2);
-
-			var drawLegend = legend
-				.selectAll(".legend")
-				.data(dataType)
-				.enter()
-				.append("g")
-				.attr("class", "legend")
-				.attr("transform", function (d, i) {
-					if (i === 0) {
-						dataL = d.length + legendOffset;
-						return "translate(0,0)";
-					} else {
-						var newdataL = dataL;
-						dataL += d.length + legendOffset;
-						return "translate(" + newdataL + ",0)";
-					}
+			simulation.nodes(data).on("tick", (d) => {
+				// dot x and y pos
+				dots.attr("transform", function (d) {
+					return "translate(" + d.x + ", " + d.y + ")";
 				});
-
-			drawLegend
-				.append("circle")
-				.attr("cx", radius)
-				.attr("cy", radius)
-				.attr("r", radius / 2)
-				.style("fill", (d, i) => colorsType[i]);
-
-			drawLegend
-				.append("text")
-				.attr("x", radius + radius)
-				.attr("y", radius * 1.5)
-				.text((d) => d)
-				.attr("class", "textselected")
-				.style("text-anchor", "start");
-
-			///////////////////////////////////////////////////////////////////////////
-			//////////////////////////// details //////////////////////////////////////
-			///////////////////////////////////////////////////////////////////////////
-
-			function on(f) {
-				document.getElementById("overlay").style.display = "block";
-				var detailsHtml = Mustache.render(template, f);
-				d3.select("#overlay").html(detailsHtml);
-			}
+				// label x and y pos
+				label.attr("transform", function (d) {
+					return "translate(" + d.x + ", " + d.y + ")";
+				});
+			});
 		};
 		dots(data);
 	};
