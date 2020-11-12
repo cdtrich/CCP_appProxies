@@ -161,7 +161,7 @@ const createChart = async () => {
 				d3.select(".tooltip")
 					.style("left", mouseX + "px")
 					.style("top", mouseY + "px")
-					.html("<b>" + d.title + "</b>" + "<br>" + d.val + " operations");
+					.html(d.val + " operations");
 			});
 
 			dots.on("mouseleave", function (d) {

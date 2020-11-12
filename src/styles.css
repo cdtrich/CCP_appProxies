@@ -109,6 +109,7 @@ h1 {
 	border-radius: 1em;
 	color: #000;
 	font-size: 1em;
+	font-weight: normal;
 	/* text-shadow: 0 0 5px white; */
 	padding: 0.5em 1em;
 	position: absolute;
