@@ -2,10 +2,6 @@
 //////////////////////////// libs /////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-// import * as d3 from "d3";
-// import { csv } from "d3-fetch";
-// import _ from "lodash";
-
 console.clear();
 
 ///////////////////////////////////////////////////////////////////////////
@@ -24,7 +20,6 @@ const createChart = async () => {
 	//////////////////////////// accessors ////////////////////////////////////
 
 	const col = "title";
-	// const xAccessor = (d) => d.startYear;
 	const cAccessor = (d) => d[col];
 	const rAccessor = (d) => d.val;
 
@@ -46,8 +41,6 @@ const createChart = async () => {
 	const update = () => {
 		//////////////////////////// sizes ///////////////////////////////////
 		const el = document.getElementById("col");
-		// const size = 795;
-		// const size = d3.min([window.innerWidth * 0.99, window.innerHeight * 0.99]);
 		const size = el.clientWidth * 0.99;
 
 		let dimensions = {
@@ -81,20 +74,12 @@ const createChart = async () => {
 
 		//////////////////////////// colors ///////////////////////////////////////
 
-		const colorsType = [
-			// "#113655",
-			"#f28c00",
-			// "#3f8ca5"
-			"#fed061",
-			// "#99d4e3",
-			"#fab85f"
-		];
+		const colorsType = ["#f28c00", "#fed061", "#fab85f"];
 
 		//////////////////////////// scales ///////////////////////////////////////
 
 		const rScale = d3
 			.scaleSqrt()
-			// .domain(d3.extent(data, rAccessor))
 			.domain([0, d3.max(data, rAccessor)])
 			.range([10, dimensions.boundedHeight / 3]);
 
@@ -129,7 +114,6 @@ const createChart = async () => {
 			dots
 				.style("fill", (d) => cScale(cAccessor(d)))
 				.style("fill-opacity", 0.3);
-			// .attr("stroke", (d) => cScale(cAccessor(d)));
 
 			const label = bounds
 				.selectAll(".label")
